@@ -1,49 +1,67 @@
-// spec.js
 const CarHomePage = require('./carHomePage.po.js');
 
-describe('Car Home page - Integration Test', function() {
+describe('Car Home page - Integration Test', function () {
     let page,
         EC;
 
-    beforeAll(function() {
+    const newsTitles = [
+        'CAR INSURANCE GUIDES',
+        'MOTORING NEWS',
+        'YOU & YOUR CAR',
+        'STREETWISE'
+    ];
+
+    beforeAll(() => {
         page = new CarHomePage();
         EC = protractor.ExpectedConditions;
-        browser.get('http://www.ci1-cms.gb.moneysupermarket.com/car-insurance/');
+        page.pageLoad();
     });
 
-    it('should have possible to login and logout', () => {
-        page.signInLink.click();
-        page.emailInput.sendKeys('active@msm.com');
-        page.passwordInput.sendKeys('pass1234');
-        page.signInButton.click();
-        expect(page.userNameLink.getText()).toBe('Hi Active');
-        page.signOutLink.click();
-        page.notYouLink.click();
+    beforeEach(() => {
+        page.scrollAndWaitAndClick(page.signInLink);
+        page.setTextInputByValue(page.emailInput, 'active@msm.com');
+        page.setTextInputByValue(page.passwordInput, 'pass1234');
+        page.scrollAndWaitAndClick(page.signInButton);
+        expect(page.userNameLink.getText()).toEqual('Hi Active');
+    });
+
+    afterEach(() => {
+        page.scrollAndWaitAndClick(page.signOutLink);
+        page.scrollAndWaitAndClick(page.notYouLink);
     });
 
     it('should have possible to go to result page', () => {
-        page.signInLink.click();
-        page.emailInput.sendKeys('active@msm.com');
-        page.passwordInput.sendKeys('pass1234');
-        page.signInButton.click();
-        expect(page.userNameLink.getText()).toBe('Hi Active');
-        expect(page.signOutLink.isDisplayed()).toBe(true);
-        browser.wait(EC.visibilityOf(page.activeQuotesTable), 5000);
-        page.seeResultsButton.click();
-        browser.wait(EC.visibilityOf(page.naturalLanguageSection), 5000);
-        expect(page.updateButton.isPresent()).toBe(true);
-        expect(page.updateButton.isDisplayed()).toBe(false);
-        page.moreButton.get(0).click();
-        page.goToSiteButton.click();
+        page.waitForVisibilityOf(page.signOutLink);
+        page.waitForVisibilityOf(page.activeQuotesTable);
+        page.scrollAndWaitAndClick(page.seeResultsButton);
+        page.waitForUrlContains('car-insurance/results', 5000);
+        page.waitForVisibilityOf(page.naturalLanguageSection);
+        page.waitForInVisibilityOf(page.updateButton);
+        browser.sleep(10000)
+        page.scrollAndWaitAndClick(page.moreButton.get(1));
+        page.scrollAndWaitAndClick(page.goToSiteButton);
         browser.ignoreSynchronization = true;
-        browser.getAllWindowHandles().then((windowHandles) => {
-            expect(windowHandles.length).toBe(2);
-            browser.switchTo().window(windowHandles[1]);
-            browser.wait(EC.urlContains('go-to-site'), 5000);
-            browser.switchTo().window(windowHandles[0]);
-        });
+        expect(page.getCountTab()).toBe(2);
+        page.switchToTab(1);
+        page.waitForUrlContains('go-to-site', 5000);
+        page.switchToTab(0);
         browser.ignoreSynchronization = false;
-        browser.navigate().back();
-        browser.wait(EC.urlContains('car-insurance/results'), 5000);
+        page.navigateBack();
+        page.waitForUrlContains('car-insurance/results', 5000);
     });
+
+    it('should display news section', () => {
+        page.waitForVisibilityOf(page.newsSection);
+        newsTitles.forEach((item, index) => {
+            expect(page.newsSectionTitle.get(index).getText()).toEqual(item);
+        })
+    });
+
+    it('should display 3 quotes on landing page', () => {
+        page.waitForVisibilityOf(page.paginationSection);
+        page.waitForVisibilityOf(page.paginationPrevButton);
+        page.waitForVisibilityOf(page.paginationNextButton);
+        expect(page.paginationPoints.count()).toBe(3);
+    });
+
 });
