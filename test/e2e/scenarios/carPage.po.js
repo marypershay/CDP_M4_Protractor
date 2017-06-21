@@ -25,10 +25,16 @@ module.exports = class CarHomePage {
         this.paginationPoints = this.paginationSection.all(by.css('.msm-collapsible-content-section-guides-paginator__items'));
         this.paginationPrevButton = this.paginationSection.element(by.css('.msm-collapsible-content-section-guides-paginator__nav--prev'));
         this.paginationNextButton = this.paginationSection.element(by.css('.msm-collapsible-content-section-guides-paginator__nav--next'));
+
+        this.carQSInfoIcon = element.all(by.css('.helptext__mobile-button')).get(0);
+        this.carQSLicenceDropdown = element.all(by.css('select[data-ng-model="nativeSelectedItem"]')).get(0);
+        this.carQSLicenceDropdownOption = element.all(by.css('select[data-ng-model="nativeSelectedItem"] option:checked')).get(0);
+
+        this.carQSTitleText = element.all(by.css('span[data-ng-bind-html="rewordedLabel"]')).get(0)
     }
 
-    pageLoad() {
-        return  browser.get('http://www.ci1-cms.gb.moneysupermarket.com/car-insurance/');
+    pageLoad(page) {
+        return  browser.get(page);
     }
 
     waitForVisibilityOf(element, timeOut) {

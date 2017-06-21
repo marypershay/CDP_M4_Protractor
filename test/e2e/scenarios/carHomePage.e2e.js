@@ -1,4 +1,4 @@
-const CarHomePage = require('./carHomePage.po.js');
+const CarHomePage = require('./carPage.po.js');
 
 describe('Car Home page - Integration Test', function () {
     let page,
@@ -14,7 +14,7 @@ describe('Car Home page - Integration Test', function () {
     beforeAll(() => {
         page = new CarHomePage();
         EC = protractor.ExpectedConditions;
-        page.pageLoad();
+        page.pageLoad('http://www.ci1-cms.gb.moneysupermarket.com/car-insurance/');
     });
 
     beforeEach(() => {
